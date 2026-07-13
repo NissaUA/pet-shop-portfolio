@@ -7,8 +7,7 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; }
         header { background-color: #333; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .brand { text-decoration: none; color: white; font-weight: bold; font-size: 1.5rem; }
-        
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; font-weight: bold; font-size: 1.5rem; }
         .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
         .breadcrumb { margin-bottom: 1rem; color: #666; font-size: 0.9rem; }
         .breadcrumb a { color: #2c7a7b; text-decoration: none; }
@@ -19,80 +18,86 @@
         .product-info { flex: 1; display: flex; flex-direction: column; }
         
         .title { margin-top: 0; font-size: 2rem; color: #333; }
-        .rating { color: #d69e2e; font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .reviews-count { color: #666; font-size: 0.9rem; }
+        .rating { color: #d69e2e; font-size: 1.2rem; margin-bottom: 1rem; }
         .price { font-size: 2rem; color: #2c7a7b; font-weight: bold; margin: 1rem 0; }
         .description { line-height: 1.6; color: #4a5568; margin-bottom: 2rem; }
         
-        button { background-color: #2c7a7b; color: white; border: none; padding: 1rem; cursor: pointer; border-radius: 4px; font-size: 1.1rem; font-weight: bold; transition: background 0.2s; }
+        button { background-color: #2c7a7b; color: white; border: none; padding: 1rem; cursor: pointer; border-radius: 4px; font-size: 1.1rem; font-weight: bold; }
         button:hover { background-color: #235f5f; }
-        .stock-status { margin-bottom: 1rem; font-weight: bold; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
         
-        @media (max-width: 768px) {
-            .product-layout { flex-direction: column; gap: 1.5rem; padding: 1rem; }
-        }
+        #cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 2rem; border-radius: 8px; width: 500px; max-width: 90%; color: black; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #ddd; }
+        
+        @media (max-width: 768px) { .product-layout { flex-direction: column; padding: 1rem; } }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="index.html" class="brand" data-testid="home-link">Paws & Claws</a>
-        <div><button id="view-cart-btn" data-testid="view-cart-btn" style="padding: 0.5rem;">Cart (<span id="cart-count">0</span>)</button></div>
+        <a href="index.html" class="brand" data-testid="home-link">
+            <img src="data:image/svg+xml;utf8,<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><circle cx='50' cy='50' r='50' fill='%232c7a7b'/><path d='M35 85 C35 55 45 45 50 45 C55 45 65 55 65 85 Z' fill='%233b2f2f'/><circle cx='50' cy='40' r='14' fill='%233b2f2f'/><polygon points='38,32 44,38 42,20' fill='%232a1f1f'/><polygon points='62,32 56,38 58,20' fill='%232a1f1f'/><path d='M38 75 Q45 60 50 60 L50 85 Q45 85 38 75' fill='%23ffffff'/><polygon points='45,40 55,40 50,50' fill='%23ffffff'/></svg>" width="40" height="40" alt="Logo">
+            Paws & Claws
+        </a>
+        <div><button onclick="openCartModal()" style="padding: 0.5rem;">Cart (<span id="cart-count">0</span>)</button></div>
     </header>
 
     <div class="container">
-        <div class="breadcrumb" data-testid="breadcrumb">
-            <a href="index.html">Home</a> > <span id="bread-name">Product</span>
-        </div>
+        <div class="breadcrumb"><a href="index.html">Home</a> > <span id="bread-name">Product</span></div>
+        <div class="product-layout" id="pdp-container"></div>
+    </div>
 
-        <div class="product-layout" id="pdp-container">
+    <div id="cart-modal">
+        <div class="modal-content">
+            <h2>Your Shopping Cart</h2>
+            <table id="cart-table">
+                <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Action</th></tr></thead>
+                <tbody id="cart-items"></tbody>
+            </table>
+            <div style="text-align: right; margin-bottom: 1rem;">
+                <strong>Total: $<span id="cart-total">0.00</span></strong>
             </div>
+            <button onclick="checkout()" style="margin-bottom: 0.5rem; width: 100%;">Checkout</button>
+            <button class="close-btn" onclick="closeCartModal()" style="background: #e53e3e; width: 100%;">Close</button>
+        </div>
     </div>
 
     <script src="shared.js"></script>
     <script>
-        // Extract ID from URL (e.g., product.html?id=101)
         const urlParams = new URLSearchParams(window.location.search);
         const productId = parseInt(urlParams.get('id'));
         const product = products.find(p => p.id === productId);
         const pdpContainer = document.getElementById('pdp-container');
 
-        if (!product) {
-            pdpContainer.innerHTML = '<h2>Product not found</h2><a href="index.html">Return to catalog</a>';
-        } else {
+        function renderPDP() {
+            if (!product) {
+                pdpContainer.innerHTML = '<h2>Product not found</h2><a href="index.html">Return to catalog</a>';
+                return;
+            }
+            
             document.title = `${product.name} | Paws & Claws`;
             document.getElementById('bread-name').innerText = product.name;
 
-            const stockText = product.stock > 0 
-                ? `<span style="color: green;" data-testid="pdp-stock">In Stock (${product.stock} available)</span>` 
-                : `<span style="color: red;" data-testid="pdp-stock">Out of Stock</span>`;
-
-            // Check if already in cart
             const cart = getCart();
             const inCart = cart.some(item => item.id === product.id);
-            const btnText = inCart ? 'Already in Cart - Go to Home to edit' : 'Add to Cart';
+            const btnText = inCart ? 'Already in Cart' : 'Add to Cart';
             const btnDisabled = (product.stock === 0 || inCart) ? 'disabled' : '';
 
             pdpContainer.innerHTML = `
                 <div class="product-image-container">
-                    <img src="${product.image}" alt="${product.name}" data-testid="pdp-image">
+                    <img src="${product.image}" alt="${product.name}">
                 </div>
                 <div class="product-info">
-                    <h1 class="title" data-testid="pdp-title">${product.name}</h1>
-                    
-                    <div class="rating" data-testid="pdp-rating">
-                        ★ ${product.rating} <span class="reviews-count">(${product.reviews} reviews)</span>
+                    <h1 class="title">${product.name}</h1>
+                    <div class="rating">★ ${product.rating} <span style="color:#666; font-size:0.9rem;">(${product.reviews} reviews)</span></div>
+                    <div class="price">$${product.price.toFixed(2)}</div>
+                    <div style="margin-bottom:1rem; font-weight:bold; color: ${product.stock > 0 ? 'green' : 'red'}">
+                        ${product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
                     </div>
-                    
-                    <div class="price" data-testid="pdp-price">$${product.price.toFixed(2)}</div>
-                    
-                    <div class="stock-status">${stockText}</div>
-                    
-                    <div class="description" data-testid="pdp-desc">
-                        ${product.longDesc}
-                    </div>
-                    
-                    <button id="pdp-add-btn" data-testid="pdp-add-btn" onclick="addToCartPDP()" ${btnDisabled}>${btnText}</button>
+                    <div class="description">${product.longDesc}</div>
+                    <button id="pdp-add-btn" onclick="addToCartPDP()" ${btnDisabled}>${btnText}</button>
                 </div>
             `;
         }
@@ -102,12 +107,11 @@
                 const cart = getCart();
                 cart.push({ id: product.id, qty: 1 });
                 saveCart(cart);
-                // Update UI visually
-                const btn = document.getElementById('pdp-add-btn');
-                btn.innerText = 'Added to Cart';
-                btn.disabled = true;
+                renderPDP();
             }
         }
+
+        renderPDP();
     </script>
 </body>
 </html>
