@@ -1,12 +1,16 @@
 // shared.js
 
 const products = [
-    { id: 101, name: "Premium Walking Harness", category: "cat", price: 28.50, stock: 15, image: "https://loremflickr.com/300/200/cat,harness/all", shortDesc: "Custom fit harness for active felines.", longDesc: "Designed for athletic builds. The ergonomic cut is comfortable and won't hide your cat's unique patterns.", rating: 4.8, reviews: 124 },
-    { id: 102, name: "Heavy Duty Chew Bone", category: "dog", price: 12.99, stock: 0, image: "https://loremflickr.com/300/200/dog,bone/all", shortDesc: "Indestructible rubber bone for aggressive chewers.", longDesc: "Made from military-grade rubber, this bone will withstand even the most aggressive power chewers.", rating: 4.5, reviews: 89 },
-    { id: 103, name: "Premium Catnip Blend", category: "cat", price: 9.99, stock: 40, image: "https://loremflickr.com/300/200/catnip/all?lock=1", shortDesc: "100% organic, locally sourced catnip.", longDesc: "Harvested at the peak of freshness, our organic catnip blend provides maximum potency for playtime.", rating: 4.9, reviews: 210 },
-    { id: 104, name: "Automatic Feeder Bowl", category: "cat", price: 45.00, stock: 5, image: "https://loremflickr.com/300/200/cat,bowl/all?lock=2", shortDesc: "Programmable timer for precise portion control.", longDesc: "Set up to 4 meals a day with customizable portion sizes. Features a battery backup.", rating: 4.2, reviews: 56 },
-    { id: 105, name: "Reflective Dog Collar", category: "dog", price: 18.25, stock: 20, image: "https://loremflickr.com/300/200/dog,collar/all?lock=3", shortDesc: "Stay safe during night walks.", longDesc: "Highly reflective stitching ensures your dog is visible to cars during evening and early morning walks.", rating: 4.7, reviews: 150 },
-    { id: 106, name: "Cuttlebone 3-Pack", category: "bird", price: 6.50, stock: 12, image: "https://loremflickr.com/300/200/parrot/all?lock=4", shortDesc: "Essential calcium supplement.", longDesc: "Natural cuttlebone to help keep your bird's beak trimmed and provide necessary calcium.", rating: 4.6, reviews: 32 }
+    { id: 101, name: "Premium Walking Harness", brand: "Pawsitive", category: "Accessories", price: 28.50, stock: 15, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Cat+Harness", shortDesc: "Custom fit harness for active felines.", longDesc: "Designed for athletic builds. The ergonomic cut is comfortable and won't hide your cat's unique patterns—perfect if they have a distinct asymmetrical white mark on the right shoulder.", rating: 4.8, reviews: 124 },
+    { id: 102, name: "Extreme Chew Rubber Bone", brand: "KONG", category: "Toys", price: 12.99, stock: 0, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Chew+Bone", shortDesc: "Indestructible rubber bone for aggressive chewers.", longDesc: "Made from military-grade rubber, this bone will withstand even the most aggressive power chewers.", rating: 4.5, reviews: 89 },
+    { id: 103, name: "Organic Catnip Blend", brand: "Trixie", category: "Health", price: 9.99, stock: 40, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Catnip", shortDesc: "100% organic, locally sourced catnip.", longDesc: "Harvested at the peak of freshness, our organic catnip blend provides maximum potency for playtime.", rating: 4.9, reviews: 210 },
+    { id: 104, name: "Automatic Smart Feeder", brand: "PetSafe", category: "Bowls", price: 45.00, stock: 5, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Smart+Feeder", shortDesc: "Programmable timer for precise portion control.", longDesc: "Set up to 4 meals a day with customizable portion sizes. Features a battery backup.", rating: 4.2, reviews: 56 },
+    { id: 105, name: "Reflective Night Collar", brand: "Trixie", category: "Accessories", price: 18.25, stock: 20, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Night+Collar", shortDesc: "Stay safe during night walks.", longDesc: "Highly reflective stitching ensures your pet is visible to cars during evening and early morning walks.", rating: 4.7, reviews: 150 },
+    { id: 106, name: "Natural Mineral Cuttlebone", brand: "Trixie", category: "Health", price: 6.50, stock: 12, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Cuttlebone", shortDesc: "Essential calcium supplement.", longDesc: "Natural cuttlebone to help keep your bird's beak trimmed and provide necessary calcium.", rating: 4.6, reviews: 32 },
+    { id: 107, name: "Wild Prairie Dry Cat Food", brand: "Acana", category: "Food", price: 34.99, stock: 8, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Dry+Cat+Food", shortDesc: "Grain-free regional poultry recipe.", longDesc: "Loaded with free-run chicken, turkey, and whole nest-laid eggs delivered fresh or raw from regional farms.", rating: 4.9, reviews: 340 },
+    { id: 108, name: "Feather Wand Teaser", brand: "Pawsitive", category: "Toys", price: 8.50, stock: 25, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Feather+Wand", shortDesc: "Interactive wand for hunting practice.", longDesc: "Features natural feathers and a flexible carbon fiber rod to mimic the erratic flight of real birds.", rating: 4.3, reviews: 77 },
+    { id: 109, name: "Orthopedic Memory Foam Bed", brand: "PetSafe", category: "Accessories", price: 65.00, stock: 3, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Pet+Bed", shortDesc: "Relieves joint pain for senior pets.", longDesc: "High-density memory foam contours to your pet's body to provide optimal support and comfort.", rating: 4.8, reviews: 205 },
+    { id: 110, name: "Salmon Pate Wet Food", brand: "Acana", category: "Food", price: 2.50, stock: 100, image: "https://placehold.co/300x200/2c7a7b/ffffff?text=Wet+Food", shortDesc: "Premium salmon pate in broth.", longDesc: "Rich in wild-caught salmon, this high-moisture pate keeps your pet hydrated and satisfied.", rating: 4.7, reviews: 412 }
 ];
 
 function getCart() {
@@ -25,7 +29,6 @@ function updateCartHeaderCount() {
     if (countEl) countEl.innerText = cart.reduce((sum, item) => sum + item.qty, 0);
 }
 
-// Modal Logic for all pages
 function openCartModal() {
     document.getElementById('cart-modal').style.display = 'flex';
     renderCartModal();
@@ -66,7 +69,6 @@ function removeFromCart(id) {
     cart = cart.filter(item => item.id !== id);
     saveCart(cart);
     renderCartModal();
-    // Refresh page UI if the functions exist on the current page
     if (typeof renderProducts === 'function') renderProducts();
     if (typeof renderPDP === 'function') renderPDP();
 }
