@@ -5,18 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; display: flex; flex-direction: column; min-height: 100vh; }
         header { background-color: #333; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
         .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; font-weight: bold; font-size: 1.5rem; }
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; box-sizing: border-box; }
         .breadcrumb { margin-bottom: 1rem; color: #666; font-size: 0.9rem; }
         .breadcrumb a { color: #2c7a7b; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
         
         .product-layout { display: flex; gap: 3rem; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .product-image-container { flex: 1; }
         .product-image-container img { width: 100%; border-radius: 8px; }
         .product-info { flex: 1; display: flex; flex-direction: column; }
         
+        .product-meta { font-size: 1rem; color: #888; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 1px; }
         .title { margin-top: 0; font-size: 2rem; color: #333; }
         .rating { color: #d69e2e; font-size: 1.2rem; margin-bottom: 1rem; }
         .price { font-size: 2rem; color: #2c7a7b; font-weight: bold; margin: 1rem 0; }
@@ -25,8 +28,14 @@
         button { background-color: #2c7a7b; color: white; border: none; padding: 1rem; cursor: pointer; border-radius: 4px; font-size: 1.1rem; font-weight: bold; }
         button:hover { background-color: #235f5f; }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* Footer */
+        footer { background: #333; color: #ccc; padding: 2rem; margin-top: auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; }
+        footer h4 { color: white; margin-top: 0; }
+        footer a { color: #4fd1c5; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
         
-        #cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        #cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 2rem; border-radius: 8px; width: 500px; max-width: 90%; color: black; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
         th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #ddd; }
@@ -45,9 +54,30 @@
     </header>
 
     <div class="container">
-        <div class="breadcrumb"><a href="index.html">Home</a> > <span id="bread-name">Product</span></div>
+        <div class="breadcrumb" id="breadcrumb-container">
+            <a href="index.html">Home</a> > <span id="bread-category">Category</span> > <span id="bread-name">Product</span>
+        </div>
         <div class="product-layout" id="pdp-container"></div>
     </div>
+
+    <footer data-testid="site-footer">
+        <div>
+            <h4 data-testid="footer-contact-title">Contact Us</h4>
+            <p>Paws & Claws HQ</p>
+            <p>vul. Khreshchatyk, 22</p>
+            <p>Kyiv, Ukraine, 01001</p>
+            <p>Email: <a href="mailto:support@mockpawsandclaws.test">support@mockpawsandclaws.test</a></p>
+        </div>
+        <div>
+            <h4>Important Links</h4>
+            <ul style="list-style: none; padding: 0; margin: 0; line-height: 1.8;">
+                <li><a href="#" data-testid="footer-link-about">About Us</a></li>
+                <li><a href="#" data-testid="footer-link-shipping">Shipping Policy</a></li>
+                <li><a href="#" data-testid="footer-link-github">GitHub Repository</a></li>
+                <li><a href="#" data-testid="footer-link-api">API Documentation</a></li>
+            </ul>
+        </div>
+    </footer>
 
     <div id="cart-modal">
         <div class="modal-content">
@@ -74,10 +104,15 @@
         function renderPDP() {
             if (!product) {
                 pdpContainer.innerHTML = '<h2>Product not found</h2><a href="index.html">Return to catalog</a>';
+                document.getElementById('breadcrumb-container').style.display = 'none';
                 return;
             }
             
             document.title = `${product.name} | Paws & Claws`;
+            
+            // Note: The category breadcrumb isn't wired to a filter URL for simplicity in a static mock,
+            // but the element structure exists for your locators.
+            document.getElementById('bread-category').innerHTML = `<a href="index.html">${product.category}</a>`;
             document.getElementById('bread-name').innerText = product.name;
 
             const cart = getCart();
@@ -87,9 +122,10 @@
 
             pdpContainer.innerHTML = `
                 <div class="product-image-container">
-                    <img src="${product.image}" alt="${product.name}">
+                    <img src="${product.image}" alt="${product.name}" data-testid="pdp-image">
                 </div>
                 <div class="product-info">
+                    <div class="product-meta" data-testid="pdp-meta">Brand: ${product.brand}</div>
                     <h1 class="title">${product.name}</h1>
                     <div class="rating">★ ${product.rating} <span style="color:#666; font-size:0.9rem;">(${product.reviews} reviews)</span></div>
                     <div class="price">$${product.price.toFixed(2)}</div>
@@ -97,7 +133,7 @@
                         ${product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
                     </div>
                     <div class="description">${product.longDesc}</div>
-                    <button id="pdp-add-btn" onclick="addToCartPDP()" ${btnDisabled}>${btnText}</button>
+                    <button id="pdp-add-btn" onclick="addToCartPDP()" ${btnDisabled} data-testid="pdp-add-btn">${btnText}</button>
                 </div>
             `;
         }
