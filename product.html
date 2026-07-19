@@ -29,6 +29,10 @@
         button:hover { background-color: #235f5f; }
         button:disabled { background-color: #ccc; cursor: not-allowed; }
 
+        .qty-control { display: flex; align-items: center; justify-content: space-between; background: #e6fffa; padding: 0.5rem; border-radius: 4px; border: 1px solid #b2f5ea; width: 100%; box-sizing: border-box; }
+        .qty-control button { width: 40px; padding: 0.5rem; background: #319795; }
+        .qty-control span.qty-val { font-weight: bold; width: 40px; text-align: center; display: inline-block; }
+
         /* Footer */
         footer { background: #333; color: #ccc; padding: 2rem; margin-top: auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; }
         footer h4 { color: white; margin-top: 0; }
@@ -109,16 +113,29 @@
             }
             
             document.title = `${product.name} | Paws & Claws`;
-            
-            // Note: The category breadcrumb isn't wired to a filter URL for simplicity in a static mock,
-            // but the element structure exists for your locators.
-            document.getElementById('bread-category').innerHTML = `<a href="index.html">${product.category}</a>`;
+            document.getElementById('bread-category').innerHTML = `<a href="index.html?category=${encodeURIComponent(product.category)}">${product.category}</a>`;
             document.getElementById('bread-name').innerText = product.name;
 
             const cart = getCart();
-            const inCart = cart.some(item => item.id === product.id);
-            const btnText = inCart ? 'Already in Cart' : 'Add to Cart';
-            const btnDisabled = (product.stock === 0 || inCart) ? 'disabled' : '';
+            const cartItem = cart.find(item => item.id === product.id);
+            let actionHTML = '';
+
+            if (cartItem) {
+                actionHTML = `
+                    <div class="qty-control" data-testid="pdp-qty-control">
+                        <span style="font-size: 1rem; color: #2c7a7b; font-weight: bold;">In Cart</span>
+                        <div>
+                            <button onclick="updateQty(${product.id}, -1)">-</button>
+                            <span class="qty-val">${cartItem.qty}</span>
+                            <button onclick="updateQty(${product.id}, 1)" ${cartItem.qty >= product.stock ? 'disabled' : ''}>+</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const btnDisabled = product.stock === 0 ? 'disabled' : '';
+                const btnText = product.stock > 0 ? 'Add to Cart' : 'Out of Stock';
+                actionHTML = `<button id="pdp-add-btn" onclick="addToCart(${product.id})" ${btnDisabled} data-testid="pdp-add-btn" style="width:100%;">${btnText}</button>`;
+            }
 
             pdpContainer.innerHTML = `
                 <div class="product-image-container">
@@ -133,18 +150,9 @@
                         ${product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
                     </div>
                     <div class="description">${product.longDesc}</div>
-                    <button id="pdp-add-btn" onclick="addToCartPDP()" ${btnDisabled} data-testid="pdp-add-btn">${btnText}</button>
+                    ${actionHTML}
                 </div>
             `;
-        }
-
-        window.addToCartPDP = function() {
-            if (product && product.stock > 0) {
-                const cart = getCart();
-                cart.push({ id: product.id, qty: 1 });
-                saveCart(cart);
-                renderPDP();
-            }
         }
 
         renderPDP();

@@ -8,13 +8,35 @@
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; display: flex; flex-direction: column; min-height: 100vh; }
         header { background-color: #333; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
         .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; }
+        
+        /* Category Ribbon with Layout Toggle */
+        .category-ribbon { background: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; box-sizing: border-box; }
+        .categories-group { display: flex; gap: 1rem; overflow-x: auto; }
+        .category-ribbon button.cat-btn { width: auto; background: transparent; color: #2c7a7b; border: 2px solid #2c7a7b; font-weight: bold; border-radius: 20px; padding: 0.5rem 1.5rem; white-space: nowrap; }
+        .category-ribbon button.cat-btn:hover, .category-ribbon button.cat-btn.active { background: #2c7a7b; color: white; }
+
+        /* Layout Toggle Icon Button */
+        .layout-toggle-btn { background: transparent; border: 1px solid #ddd; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; box-sizing: border-box; transition: background 0.2s; }
+        .layout-toggle-btn:hover { background: #f0f0f0; }
+        .layout-toggle-btn svg { width: 22px; height: 22px; fill: #2c7a7b; }
+
         main { display: flex; padding: 2rem; gap: 2rem; flex-direction: row; flex: 1; }
         aside { width: 250px; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: fit-content; flex-shrink: 0; }
         
+        /* Grid Layout (Default) */
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; flex: 1; align-content: start; }
         .product-card { background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-        .product-img { width: 100%; height: 200px; object-fit: cover; border-bottom: 1px solid #eee; }
-        .card-content { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
+        .product-img { width: 100%; height: 200px; border-bottom: 1px solid #eee; }
+        .product-card .card-content { padding: 1.5rem; display: flex; flex-direction: column; flex: 1; justify-content: space-between; }
+        
+        /* Table Layout Options */
+        .products-table { display: flex; flex-direction: column; gap: 1rem; flex: 1; }
+        .products-table .product-card { flex-direction: row; align-items: center; }
+        .products-table .product-img { width: 150px; height: 150px; border-bottom: none; border-right: 1px solid #eee; }
+        .products-table .card-content { flex-direction: row; align-items: center; }
+        .products-table .card-info { flex: 1; padding-right: 1.5rem; }
+        .products-table .card-actions { min-width: 150px; text-align: right; }
+
         .product-meta { font-size: 0.8rem; color: #888; text-transform: uppercase; margin-bottom: 0.5rem; }
         .product-card h3 { margin: 0 0 0.5rem 0; }
         .product-card h3 a { color: #333; text-decoration: none; }
@@ -43,10 +65,15 @@
         th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #ddd; }
 
         @media (max-width: 768px) {
+            .category-ribbon { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .layout-toggle-btn { align-self: flex-end; }
             main { flex-direction: column; padding: 1rem; }
             aside { width: auto; }
             header { flex-direction: column; text-align: center; }
             footer { flex-direction: column; text-align: center; }
+            .products-table .product-card { flex-direction: column; }
+            .products-table .product-img { width: 100%; height: 200px; border-right: none; border-bottom: 1px solid #eee; }
+            .products-table .card-content { flex-direction: column; }
         }
     </style>
 </head>
@@ -63,10 +90,26 @@
         </div>
     </header>
 
+    <nav class="category-ribbon" data-testid="category-ribbon">
+        <div class="categories-group">
+            <button data-cat="all" class="cat-btn active" onclick="setCategoryFilter('all')">All Categories</button>
+            <button data-cat="Accessories" class="cat-btn" onclick="setCategoryFilter('Accessories')">Accessories</button>
+            <button data-cat="Bowls" class="cat-btn" onclick="setCategoryFilter('Bowls')">Bowls</button>
+            <button data-cat="Food" class="cat-btn" onclick="setCategoryFilter('Food')">Food</button>
+            <button data-cat="Health" class="cat-btn" onclick="setCategoryFilter('Health')">Health</button>
+            <button data-cat="Toys" class="cat-btn" onclick="setCategoryFilter('Toys')">Toys</button>
+        </div>
+        <button id="layout-toggle" class="layout-toggle-btn" data-testid="layout-toggle" onclick="toggleLayout()" title="Toggle View Layout">
+            <!-- Grid SVG Icon (Default View State) -->
+            <svg id="layout-icon" viewBox="0 0 24 24">
+                <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/>
+            </svg>
+        </button>
+    </nav>
+
     <main>
         <aside>
             <h2>Filters & Sorting</h2>
-            
             <div class="form-group">
                 <label for="brand-select">Brand</label>
                 <select id="brand-select" data-testid="brand-select" style="width: 100%; padding: 0.5rem;">
@@ -110,25 +153,24 @@
         </aside>
 
         <div class="products-grid" id="product-list" data-testid="product-list">
-            </div>
+        </div>
     </main>
 
     <footer data-testid="site-footer">
-        <div>
-            <h4 data-testid="footer-contact-title">Contact Us</h4>
-            <p>Paws & Claws HQ</p>
-            <p>vul. Khreshchatyk, 22</p>
-            <p>Kyiv, Ukraine, 01001</p>
-            <p>Email: <a href="mailto:support@mockpawsandclaws.test">support@mockpawsandclaws.test</a></p>
-        </div>
         <div>
             <h4>Important Links</h4>
             <ul style="list-style: none; padding: 0; margin: 0; line-height: 1.8;">
                 <li><a href="#" data-testid="footer-link-about">About Us</a></li>
                 <li><a href="#" data-testid="footer-link-shipping">Shipping Policy</a></li>
-                <li><a href="#" data-testid="footer-link-github">GitHub Repository</a></li>
-                <li><a href="#" data-testid="footer-link-api">API Documentation</a></li>
-            </ul>
+                <li><a href="#" data-testid="footer-link-about">Payment Methods</a></li>
+            </ul>         
+        </div>
+        <div> 
+        <h4 data-testid="footer-contact-title">Contact Us</h4>
+            <p>Paws & Claws HQ</p>
+            <p>vul. Khreshchatyk, 22</p>
+            <p>Kyiv, Ukraine, 01001</p>
+            <p>Email: <a href="mailto:support@mockpawsandclaws.test">support@mockpawsandclaws.test</a></p>       
         </div>
     </footer>
 
@@ -156,6 +198,35 @@
         const inStockCheckbox = document.getElementById('in-stock-checkbox');
         const sortAscRadio = document.getElementById('sort-asc');
         const sortDescRadio = document.getElementById('sort-desc');
+        const layoutIcon = document.getElementById('layout-icon');
+
+        // Tracker variable for current layout context (defaults to 'grid')
+        let currentLayout = 'grid';
+
+        // Icon raw path elements for grid and table layouts
+        const gridIconPath = '<path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/>';
+        const tableIconPath = '<path d="M4 5h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0 4h16v2H4z"/>';
+
+        window.toggleLayout = function() {
+            if (currentLayout === 'grid') {
+                currentLayout = 'table';
+                layoutIcon.innerHTML = tableIconPath;
+            } else {
+                currentLayout = 'grid';
+                layoutIcon.innerHTML = gridIconPath;
+            }
+            renderProducts();
+        }
+
+        window.setCategoryFilter = function(category) {
+            categorySelect.value = category;
+            renderProducts();
+            
+            document.querySelectorAll('.categories-group button.cat-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.dataset.cat === category) btn.classList.add('active');
+            });
+        }
 
         function renderProducts() {
             const searchTerm = searchInput.value.toLowerCase();
@@ -164,6 +235,8 @@
             const inStockOnly = inStockCheckbox.checked;
             const sortAsc = sortAscRadio.checked;
             const cart = getCart();
+
+            productListEl.className = currentLayout === 'table' ? 'products-table' : 'products-grid';
 
             let filtered = products.filter(p => {
                 const matchesSearch = p.name.toLowerCase().includes(searchTerm) || p.shortDesc.toLowerCase().includes(searchTerm);
@@ -207,14 +280,14 @@
                 }
 
                 card.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}" class="product-img">
+                    <img src="${product.image}" alt="${product.name}" class="product-img" style="object-fit: contain; background: white;">
                     <div class="card-content">
-                        <div>
+                        <div class="card-info">
                             <div class="product-meta">${product.brand} | ${product.category}</div>
                             <h3 data-testid="product-name-${product.id}"><a href="product.html?id=${product.id}">${product.name}</a></h3>
                             <p style="color: #666; font-size: 0.9rem;">${product.shortDesc}</p>
                         </div>
-                        <div>
+                        <div class="card-actions">
                             <div class="product-price">$${product.price.toFixed(2)}</div>
                             ${buttonHTML}
                         </div>
@@ -224,39 +297,24 @@
             });
         }
 
-        window.addToCart = function(productId) {
-            const cart = getCart();
-            const product = products.find(p => p.id === productId);
-            if (product && product.stock > 0) {
-                cart.push({ id: product.id, qty: 1 });
-                saveCart(cart);
-                renderProducts();
-            }
-        };
-
-        window.updateQty = function(productId, delta) {
-            let cart = getCart();
-            const itemIndex = cart.findIndex(p => p.id === productId);
-            const product = products.find(p => p.id === productId);
-
-            if (itemIndex > -1) {
-                cart[itemIndex].qty += delta;
-                if (cart[itemIndex].qty <= 0) cart.splice(itemIndex, 1);
-                else if (cart[itemIndex].qty > product.stock) cart[itemIndex].qty = product.stock;
-                saveCart(cart);
-                renderProducts();
-            }
-        };
-
         // Listeners
         searchInput.addEventListener('input', renderProducts);
         brandSelect.addEventListener('change', renderProducts);
-        categorySelect.addEventListener('change', renderProducts);
+        categorySelect.addEventListener('change', () => setCategoryFilter(categorySelect.value));
         inStockCheckbox.addEventListener('change', renderProducts);
         sortAscRadio.addEventListener('change', renderProducts);
         sortDescRadio.addEventListener('change', renderProducts);
 
-        renderProducts();
+        // Check for category in URL parameters on initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const initialCategory = params.get('category');
+            if (initialCategory) {
+                setCategoryFilter(initialCategory);
+            } else {
+                renderProducts();
+            }
+        });
     </script>
 </body>
 </html>
